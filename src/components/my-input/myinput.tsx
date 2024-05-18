@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 
-export function MyInput({ placeholder, password = false, formControl }) {
+export function MyInput({ register, placeholder, password = false, formControl }) {
   const [pwdHidden, setPwdHidden] = useState(password);
-  const { register } = useForm();
 
   function PwdToggleBtn() {
     if (!password) {
@@ -37,7 +35,7 @@ export function MyInput({ placeholder, password = false, formControl }) {
         placeholder={placeholder}
         type={pwdHidden ? 'password' : 'text'}
       />
-    <PwdToggleBtn />
+      <PwdToggleBtn />
     </div >
 </label >
 }

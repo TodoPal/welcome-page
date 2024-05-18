@@ -2,11 +2,14 @@ import { useForm } from "react-hook-form";
 import { Background } from "../background/background";
 import { MyInput } from "../my-input/myinput";
 import './welcome.css';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { registerUser } from "../../servicies/UserApi";
+import { useMemo } from "react";
 
-export function Login() {
-  const { handleSubmit } = useForm();
+export function Welcome() {
+  const { handleSubmit, register, reset, watch } = useForm();
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   /**
@@ -19,13 +22,38 @@ export function Login() {
    */
   const pwd_regex = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*#?&^_-])[A-Za-z\d[@$!%*#?&^_-].{9,}/;
   const passwordControl = { required: true, pattern: pwd_regex, minLength: 10 };
+  const confirmPasswordControl = { required: true, pattern: pwd_regex, minLength: 10 };
   const usernameControl = { required: true };
+
+  const username = watch('Username');
+  const password = watch('Password');
+  const repeatPassword = watch('Repeat password');
 
   const isLoginPage = () => currentPath === '/' || currentPath === '/login';
   const isSignupPage = () => currentPath === '/signup';
   const getHeader = () => isLoginPage() ? 'Login' : 'Sign up';
   const onSubmit = () => {
-    console.error('Not yet implemented');
+    if (isLoginPage()) {
+      // todo: implement login
+    } else if (checkPwds()) {
+      registerUser(username, password)
+        .then(() => {
+          reset();
+          navigate('/login');
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }
+
+  function checkPwds() {
+    if (password === repeatPassword) {
+      return true;
+    } else {
+      console.error('Passwords do not match');
+      return false;
+    }
   }
 
   function CheckBox() {
@@ -52,11 +80,17 @@ export function Login() {
 
   function RepeatPwd() {
     if (isSignupPage()) {
-      return <MyInput placeholder="Repeat password" password={true} formControl={passwordControl} />
+      return <MyInput register={register} placeholder="Repeat password" password={true} formControl={confirmPasswordControl} />
     } else {
       return null;
     }
   }
+
+  // using memo to avoid unnecessary re-rendering the RepeatPwd component
+  const pwd2 = useMemo(
+    () => RepeatPwd(),
+    [isLoginPage()]
+  );
 
   return <>
     <Background />
@@ -64,9 +98,9 @@ export function Login() {
       <form className="form bg-base-300" onSubmit={handleSubmit(onSubmit)}>
         <div className="header">{getHeader()}</div>
         <div className="p-6 gap-4 flex flex-col">
-          <MyInput placeholder="Username" formControl={usernameControl} />
-          <MyInput placeholder="Password" password={true} formControl={passwordControl} />
-          <RepeatPwd />
+          <MyInput register={register} placeholder="Username" formControl={usernameControl} />
+          <MyInput register={register} placeholder="Password" password={true} formControl={passwordControl} />
+          {pwd2}
           <CheckBox />
           <button className="btn btn-primary text-white font-bold" type="submit">Submit</button>
           <PwdReset />
