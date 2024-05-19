@@ -1,4 +1,5 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { CookiesProvider } from "react-cookie";
 import { Welcome } from "./components/welcome/welcome";
 import './output.css'
 
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
 
 export default function Root() {
   return <>
-    kiscifdsajl
+    <CookiesProvider />
     <RouterProvider router={router} />
   </>;
 }

@@ -4,10 +4,15 @@ import { MyInput } from "../my-input/myinput";
 import './welcome.css';
 import { useLocation, useNavigate } from "react-router-dom";
 import { registerUser } from "../../servicies/UserApi";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { loginUser, loginWithJwt } from "../../servicies/AuthService";
+import { useCookies } from "react-cookie";
+import { getJwtExpiration } from "../../util/jwtUtil";
 
 export function Welcome() {
   const { handleSubmit, register, reset, watch } = useForm();
+  const [ rememberUser, setRememberUser ] = useState(false);
+  const [ cookies, setCookie ] = useCookies(['jwtToken']);
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
@@ -29,12 +34,37 @@ export function Welcome() {
   const password = watch('Password');
   const repeatPassword = watch('Repeat password');
 
+  useEffect(() => {
+    if (cookies.jwtToken) {
+      console.log('User is already logged in');
+      loginWithJwt(cookies.jwtToken)
+        .then(() => {
+          navigate('/todos');
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  });
+
   const isLoginPage = () => currentPath === '/' || currentPath === '/login';
   const isSignupPage = () => currentPath === '/signup';
   const getHeader = () => isLoginPage() ? 'Login' : 'Sign up';
   const onSubmit = () => {
     if (isLoginPage()) {
-      // todo: implement login
+      loginUser(username, password)
+        .then((jwtToken) => {
+          reset();
+          let expires = undefined;
+          if (rememberUser) {
+            expires = new Date(getJwtExpiration(jwtToken) * 1000);
+          }
+          setCookie('jwtToken', jwtToken, { path: '/', expires });
+          navigate('/todos');
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     } else if (checkPwds()) {
       registerUser(username, password)
         .then(() => {
@@ -59,7 +89,7 @@ export function Welcome() {
   function CheckBox() {
     if (isLoginPage()) {
       return <div className="flex flex-center gap-2">
-        <input className="checkbox" type="checkbox" id="checkbox" />
+        <input className="checkbox" type="checkbox" id="checkbox" checked={rememberUser} onChange={e => setRememberUser(e.target.checked)} />
         <label htmlFor="checkbox" className="cursor-pointer text-slate-200">Remember me</label>
       </div>
     } else {
@@ -70,7 +100,7 @@ export function Welcome() {
   function PwdReset() {
     if (isLoginPage()) {
       return <>
-        <a className="text-center font-semibold text-sm text-[#1e88e5]" href="forgot">Forgot password?</a>
+        <a className="w-fit self-center text-center font-semibold text-sm text-[#1e88e5]" href="forgot">Forgot password?</a>
         <p className="font-light flex items-center justify-center text-sm text-slate-200 gap-1">Don't have an account?<a className="font-semibold text-[#1e88e5]" href="signup">Sign up</a></p>
       </>
     } else {
