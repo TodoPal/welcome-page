@@ -7,7 +7,8 @@ import { registerUser } from "../../servicies/UserApi";
 import { useEffect, useMemo, useState } from "react";
 import { loginUser, loginWithJwt } from "../../servicies/AuthService";
 import { useCookies } from "react-cookie";
-import { getJwtExpiration } from "../../util/jwtUtil";
+import { navigateToUrl } from "single-spa";
+import { getJwtExpiration } from "@TodoPal/utils";
 
 export function Welcome() {
   const { handleSubmit, register, reset, watch } = useForm();
@@ -39,7 +40,7 @@ export function Welcome() {
       console.log('User is already logged in');
       loginWithJwt(cookies.jwtToken)
         .then(() => {
-          navigate('/todos');
+          navigateToUrl('/todos');
         })
         .catch((error) => {
           console.error(error);
@@ -60,7 +61,7 @@ export function Welcome() {
             expires = new Date(getJwtExpiration(jwtToken) * 1000);
           }
           setCookie('jwtToken', jwtToken, { path: '/', expires });
-          navigate('/todos');
+          navigateToUrl('/todos');
         })
         .catch((error) => {
           console.error(error);
