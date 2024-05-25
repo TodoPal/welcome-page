@@ -36,7 +36,7 @@ export function Welcome() {
   const repeatPassword = watch('Repeat password');
 
   useEffect(() => {
-    if (cookies.jwtToken) {
+    if (document.cookie.includes('jwtToken')) {
       console.log('User is already logged in');
       loginWithJwt(cookies.jwtToken)
         .then(() => {
@@ -87,28 +87,6 @@ export function Welcome() {
     }
   }
 
-  function CheckBox() {
-    if (isLoginPage()) {
-      return <div className="flex flex-center gap-2">
-        <input className="checkbox" type="checkbox" id="checkbox" checked={rememberUser} onChange={e => setRememberUser(e.target.checked)} />
-        <label htmlFor="checkbox" className="cursor-pointer text-slate-200">Remember me</label>
-      </div>
-    } else {
-      return null;
-    }
-  }
-
-  function PwdReset() {
-    if (isLoginPage()) {
-      return <>
-        <a className="w-fit self-center text-center font-semibold text-sm text-[#1e88e5]" href="forgot">Forgot password?</a>
-        <p className="font-light flex items-center justify-center text-sm text-slate-200 gap-1">Don't have an account?<a className="font-semibold text-[#1e88e5]" href="signup">Sign up</a></p>
-      </>
-    } else {
-      return null;
-    }
-  }
-
   function RepeatPwd() {
     if (isSignupPage()) {
       return <MyInput register={register} placeholder="Repeat password" password={true} formControl={confirmPasswordControl} />
@@ -132,9 +110,19 @@ export function Welcome() {
           <MyInput register={register} placeholder="Username" formControl={usernameControl} />
           <MyInput register={register} placeholder="Password" password={true} formControl={passwordControl} />
           {pwd2}
-          <CheckBox />
+          {isLoginPage() &&
+            <div className="flex flex-center gap-2">
+              <input className="checkbox" type="checkbox" id="checkbox" checked={rememberUser} onChange={e => setRememberUser(e.target.checked)} />
+              <label htmlFor="checkbox" className="cursor-pointer text-slate-200">Remember me</label>
+            </div>
+          }
           <button className="btn btn-primary text-white font-bold" type="submit">Submit</button>
-          <PwdReset />
+          {isLoginPage() &&
+            <>
+              <a className="w-fit self-center text-center font-semibold text-sm text-[#1e88e5]" href="forgot">Forgot password?</a>
+              <p className="font-light flex items-center justify-center text-sm text-slate-200 gap-1">Don't have an account?<a className="font-semibold text-[#1e88e5] cursor-pointer" onClick={() => navigate("/signup")}>Sign up</a></p>
+            </>
+          }
         </div>
       </form>
     </div>
