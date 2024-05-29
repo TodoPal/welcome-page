@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { Background } from "../background/background";
 import { MyInput } from "../my-input/myinput";
 import './welcome.css';
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { registerUser } from "../../servicies/UserApi";
 import { useEffect, useMemo, useState } from "react";
 import { loginUser, loginWithJwt } from "../../servicies/AuthService";
@@ -119,8 +119,8 @@ export function Welcome() {
           <button className="btn btn-primary text-white font-bold" type="submit">Submit</button>
           {isLoginPage() &&
             <>
-              <a className="w-fit self-center text-center font-semibold text-sm text-[#1e88e5]" href="forgot">Forgot password?</a>
-              <p className="font-light flex items-center justify-center text-sm text-slate-200 gap-1">Don't have an account?<a className="font-semibold text-[#1e88e5] cursor-pointer" onClick={() => navigate("/signup")}>Sign up</a></p>
+              <Link to={'/forgot'} className="w-fit self-center text-center font-semibold text-sm text-[#1e88e5]">Forgot password?</Link>
+              <p className="font-light flex items-center justify-center text-sm text-slate-200 gap-1">Don't have an account?<Link to={'/signup'} className="font-semibold text-[#1e88e5] cursor-pointer">Sign up</Link></p>
             </>
           }
         </div>
